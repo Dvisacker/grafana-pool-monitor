@@ -1,0 +1,35 @@
+{
+  "name": "pool-monitor",
+  "version": "1.0.0",
+  "description": "Monitor and track Uniswap/Curve pool reserves",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "dev": "ts-node-dev --respawn src/index.ts",
+    "migrate": "psql -d pool_monitor -f src/db/schema.sql",
+    "generate": "wagmi generate"
+  },
+  "keywords": [
+    "defi",
+    "uniswap",
+    "curve",
+    "monitoring"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/pg": "^8.10.0",
+    "@wagmi/cli": "^latest",
+    "dotenv": "^16.0.0",
+    "pg": "^8.11.0",
+    "ts-node": "^10.9.0",
+    "viem": "^2.0.0",
+    "wagmi": "^latest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.2"
+  }
+}
