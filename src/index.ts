@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
-import { DatabaseService } from './services/DatabaseService';
-import { PoolMonitor } from './services/PoolMonitor';
-import { Config } from './types';
+import { DatabaseService } from './services/DatabaseService.js';
+import { PoolMonitor } from './services/PoolMonitor.js';
+import { Config } from './types.js';
 
 dotenv.config();
 

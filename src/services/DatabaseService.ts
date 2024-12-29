@@ -1,8 +1,9 @@
-import { Pool } from 'pg';
-import { ReserveData } from '../types';
+import pg from 'pg';
+import { ReserveData } from '../types.js';
+const { Pool } = pg;
 
 export class DatabaseService {
-    private pool: Pool;
+    private pool: pg.Pool;
 
     constructor(connectionConfig: {
         host: string;

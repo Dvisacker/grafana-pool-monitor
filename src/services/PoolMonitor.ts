@@ -1,7 +1,7 @@
 import { createPublicClient, http } from 'viem';
 import { mainnet } from 'viem/chains';
-import { DatabaseService } from './DatabaseService';
-import { curvePoolAbi, uniswapV2PoolAbi } from '../generated';
+import { DatabaseService } from '../services/DatabaseService.js';
+import { curvePoolAbi, uniswapV2PoolAbi } from '../generated.js';
 
 type PoolType = 'uniswap' | 'curve';
 

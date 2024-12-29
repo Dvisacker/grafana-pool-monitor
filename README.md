@@ -10,6 +10,7 @@ Useful for monitoring pool health and depegs.
 - TimescaleDB
 - Grafana
 - Ethereum RPC endpoint
+- Docker
 
 ## Setup
 

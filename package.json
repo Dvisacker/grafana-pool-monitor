@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "Monitor and track Uniswap/Curve pool reserves",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "ts-node src/index.ts",
-    "dev": "ts-node-dev --respawn src/index.ts",
-    "migrate": "psql -d pool_monitor -f src/db/schema.sql",
-    "generate": "wagmi generate"
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "migrate": "psql -d pool_monitor -U postgres -h localhost -f src/db/schema.sql",
+    "generate": "wagmi generate",
+    "setup": "docker compose up -d && npm run migrate"
   },
   "keywords": [
     "defi",
@@ -20,16 +22,16 @@
   "license": "ISC",
   "dependencies": {
     "@types/pg": "^8.10.0",
-    "@wagmi/cli": "^latest",
+    "@wagmi/cli": "latest",
     "dotenv": "^16.0.0",
     "pg": "^8.11.0",
     "ts-node": "^10.9.0",
     "viem": "^2.0.0",
-    "wagmi": "^latest"
+    "wagmi": "latest"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }
