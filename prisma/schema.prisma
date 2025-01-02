@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This table has subclasses and requires additional setup for migrations. Visit https://pris.ly/d/table-inheritance for more info.
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model pool_reserves {
+  time            DateTime @db.Timestamptz(6)
+  block_number    BigInt
+  network_id      Int
+  pool_address    String
+  token0_reserves String
+  token1_reserves String
+
+  @@id([time, pool_address])
+  @@index([time(sort: Desc)])
+  @@index([block_number])
+  @@index([pool_address])
+}
+
+model dated_blocks {
+  block_number BigInt
+  network_id   Int
+  date         DateTime
+
+  @@id([block_number, network_id])
+  @@index([block_number])
+  @@index([date])
+}
+
+// model blocks {
+//   block_number BigInt
+//   network_id   Int
+//   timestamp    BigInt
+
+//   @@id([block_number, network_id])
+//   @@index([block_number])
+//   @@index([network_id])
+// }
