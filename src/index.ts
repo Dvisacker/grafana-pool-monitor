@@ -1,7 +1,10 @@
 import dotenv from 'dotenv';
-import { DatabaseService } from './services/DatabaseService.js';
-import { PoolMonitor } from './services/PoolMonitor.js';
+import { Monitor } from './services/monitor.js';
 import { Config } from './types.js';
+import { http } from 'node_modules/viem/_types/clients/transports/http.js';
+import { mainnet } from 'viem/chains';
+import { createPublicClient } from 'viem';
+import { createDB } from './db/queries.js';
 
 dotenv.config();
 
@@ -16,7 +19,7 @@ async function main() {
             type: process.env.POOL_TYPE as 'uniswap' | 'curve',
             pollingInterval: parseInt(process.env.POLLING_INTERVAL || '60000'),
         },
-        database: {
+        db: {
             host: process.env.DB_HOST!,
             port: parseInt(process.env.DB_PORT || '5432'),
             database: process.env.DB_NAME!,
@@ -26,20 +29,31 @@ async function main() {
     };
 
     // Initialize services
-    const db = new DatabaseService(config.database);
-    const monitor = new PoolMonitor(
-        config.rpc.url,
-        config.pool.address,
-        config.pool.type,
+    const client = createPublicClient({
+        chain: mainnet,
+        transport: http(config.rpc.url),
+    });
+    const pools = [
+        {
+            address: config.pool.address,
+            type: config.pool.type,
+        },
+    ];
+    const db = createDB(config.db);
+    const monitor = new Monitor(
+        client,
+        pools,
         db,
-        config.pool.pollingInterval
+        {
+            pollingInterval: config.pool.pollingInterval,
+            backfillSince: new Date(Date.now() - 6 * 60 * 60 * 1000),
+        }
     );
 
     // Handle shutdown gracefully
     process.on('SIGINT', async () => {
         console.log('Shutting down...');
         monitor.stop();
-        await db.close();
         process.exit(0);
     });
 

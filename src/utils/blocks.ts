@@ -1,5 +1,6 @@
 import { PublicClient } from 'viem';
-import { addHours, differenceInDays, differenceInHours, startOfDay, startOfHour } from 'date-fns';
+import { addHours, differenceInHours, startOfHour } from 'date-fns';
+import { DatedBlock } from '@/db/types.js';
 
 export async function findBlockForDate(
     client: PublicClient,
@@ -53,10 +54,11 @@ export async function getDatedBlocks(
     client: PublicClient,
     startDate: Date,
     endDate: Date = new Date()
-): Promise<{ date: Date; blockNumber: bigint }[]> {
+): Promise<DatedBlock[]> {
     const normalizedStartDate = startOfHour(startDate);
     const normalizedEndDate = startOfHour(endDate);
     const hoursDiff = differenceInHours(normalizedEndDate, normalizedStartDate);
+    const networkId = client.chain?.id || 1;
 
     const dates = Array.from({ length: hoursDiff + 1 }, (_, i) =>
         addHours(normalizedStartDate, i)
@@ -65,12 +67,12 @@ export async function getDatedBlocks(
     const latestBlock = await client.getBlockNumber();
 
     let startBlock = 1n;
-    const blockNumbers: { date: Date; blockNumber: bigint }[] = [];
+    const blockNumbers: DatedBlock[] = [];
     for (const date of dates) {
         const targetTimestamp = BigInt(Math.floor(date.getTime() / 1000));
         const blockNumber = await findBlockForTimestamp(client, targetTimestamp, startBlock, latestBlock);
         startBlock = blockNumber;
-        blockNumbers.push({ date, blockNumber });
+        blockNumbers.push({ date, block_number: Number(blockNumber), network_id: networkId });
     }
 
     return blockNumbers;

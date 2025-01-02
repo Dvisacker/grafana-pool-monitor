@@ -55,13 +55,13 @@ describe('getBlockNumbersSince', () => {
         const datedBlocks = await getDatedBlocks(client, startDate, endDate);
         expect(datedBlocks).toHaveLength(4);
         expect(datedBlocks[0].date).toEqual(new Date('2024-11-01T00:00:00Z'));
-        expect(datedBlocks[0].blockNumber).toEqual(21089069n);
+        expect(datedBlocks[0].block_number).toEqual(21089069);
         expect(datedBlocks[1].date).toEqual(new Date('2024-11-01T01:00:00Z'));
-        expect(datedBlocks[1].blockNumber).toEqual(21089369n);
+        expect(datedBlocks[1].block_number).toEqual(21089369);
         expect(datedBlocks[2].date).toEqual(new Date('2024-11-01T02:00:00Z'));
-        expect(datedBlocks[2].blockNumber).toEqual(21089668n);
+        expect(datedBlocks[2].block_number).toEqual(21089668);
         expect(datedBlocks[3].date).toEqual(new Date('2024-11-01T03:00:00Z'));
-        expect(datedBlocks[3].blockNumber).toEqual(21089965n);
+        expect(datedBlocks[3].block_number).toEqual(21089965);
 
     }, 50000);
 });

@@ -1,12 +1,3 @@
-export interface ReserveData {
-    poolAddress: string;
-    token0Reserves: string;
-    token1Reserves: string;
-    blockNumber: bigint;
-    timestamp: Date;
-    virtualPrice?: string; // Optional for Curve pools
-}
-
 export interface Config {
     rpc: {
         url: string;
@@ -16,7 +7,7 @@ export interface Config {
         type: 'uniswap' | 'curve';
         pollingInterval: number;
     };
-    database: {
+    db: {
         host: string;
         port: number;
         database: string;
