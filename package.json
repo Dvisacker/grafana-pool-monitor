@@ -10,7 +10,9 @@
     "dev": "tsx watch src/index.ts",
     "migrate": "psql -d pool_monitor -U postgres -h localhost -f src/db/schema.sql",
     "generate": "wagmi generate",
-    "setup": "docker compose up -d && npm run migrate"
+    "setup": "docker compose up -d && npm run migrate",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "keywords": [
     "defi",
@@ -23,6 +25,7 @@
   "dependencies": {
     "@types/pg": "^8.10.0",
     "@wagmi/cli": "latest",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.0.0",
     "pg": "^8.11.0",
     "ts-node": "^10.9.0",
@@ -30,7 +33,10 @@
     "wagmi": "latest"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.10.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
