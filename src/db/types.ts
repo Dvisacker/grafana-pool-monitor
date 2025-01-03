@@ -12,6 +12,13 @@ export type DatedBlock = {
      */
     date: Date;
 };
+export type Pool = {
+    pool_address: string;
+    network_id: number;
+    pool_type: string;
+    token0: string;
+    token1: string;
+};
 export type PoolReserve = {
     /**
      * @kyselyType(Date)
@@ -23,7 +30,16 @@ export type PoolReserve = {
     token0_reserves: string;
     token1_reserves: string;
 };
+export type Token = {
+    address: string;
+    network_id: number;
+    name: string;
+    symbol: string;
+    decimals: number;
+};
 export type DB = {
     dated_blocks: DatedBlock;
     pool_reserves: PoolReserve;
+    pools: Pool;
+    tokens: Token;
 };

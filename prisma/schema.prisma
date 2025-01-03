@@ -18,6 +18,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Token {
+  address   String @map("address")
+  networkId Int    @map("network_id")
+  name      String @map("name")
+  symbol    String @map("symbol")
+  decimals  Int    @map("decimals")
+
+  @@id([address, networkId])
+  @@index([address])
+  @@index([networkId])
+  @@map("tokens")
+}
+
+model Pool {
+  poolAddress String @map("pool_address")
+  networkId   Int    @map("network_id")
+  poolType    String @map("pool_type")
+  token0      String @map("token0")
+  token1      String @map("token1")
+
+  @@id([poolAddress, networkId])
+  @@index([poolAddress])
+  @@index([networkId])
+  @@map("pools")
+}
+
 /// This table has subclasses and requires additional setup for migrations. Visit https://pris.ly/d/table-inheritance for more info.
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model PoolReserve {
