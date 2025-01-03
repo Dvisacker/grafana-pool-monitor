@@ -1,5 +1,7 @@
 import { Kysely, PostgresDialect, sql } from 'kysely';
-import { Pool } from 'pg';
+// import { Pool } from 'pg';
+// import * as pg from 'pg';
+import pg from 'pg';
 import type { DB } from './types.js';
 import type { PoolReserve } from './types.js';
 import type { DatedBlock } from './types.js';
@@ -13,7 +15,7 @@ export const createDB = (config: {
     password: string;
 }) => {
     const dialect = new PostgresDialect({
-        pool: new Pool(config)
+        pool: new pg.Pool(config)
     });
 
     return new Kysely<DB>({

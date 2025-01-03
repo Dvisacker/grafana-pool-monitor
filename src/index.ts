@@ -1,9 +1,8 @@
 import dotenv from 'dotenv';
 import { Monitor } from './services/monitor.js';
 import { Config } from './types.js';
-import { http } from 'node_modules/viem/_types/clients/transports/http.js';
 import { mainnet } from 'viem/chains';
-import { createPublicClient } from 'viem';
+import { createPublicClient, http } from 'viem';
 import { createDB } from './db/queries.js';
 
 dotenv.config();
@@ -46,7 +45,7 @@ async function main() {
         db,
         {
             pollingInterval: config.pool.pollingInterval,
-            backfillSince: new Date(Date.now() - 6 * 60 * 60 * 1000),
+            backfillSince: new Date(Date.now() - 24 * 60 * 60 * 1000),
         }
     );
 

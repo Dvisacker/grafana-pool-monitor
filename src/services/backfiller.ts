@@ -1,7 +1,5 @@
 import { DB } from "@/db/types.js";
-import { getDatedBlocks } from "@/utils/blocks.js";
 import { Kysely } from "kysely";
-import { PublicClient } from "viem";
 import { Rpc } from "./rpc.js";
 import { queries } from "@/db/queries.js";
 

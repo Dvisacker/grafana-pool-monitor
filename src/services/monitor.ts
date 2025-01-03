@@ -1,8 +1,6 @@
-import { createPublicClient, http, PublicClient } from 'viem';
-import { mainnet } from 'viem/chains';
-import { curvePoolAbi, uniswapV2PoolAbi } from '../generated.js';
-import { startOfHour, subDays } from 'date-fns';
-import { findBlockForTimestamp, getDatedBlocks } from '@/utils/blocks.js';
+import { PublicClient } from 'viem';
+import { startOfHour } from 'date-fns';
+import { findBlockForTimestamp } from '@/utils/blocks.js';
 import { Rpc } from './rpc.js';
 import { Kysely } from 'kysely';
 import { DB, PoolReserve } from '@/db/types.js';
@@ -46,20 +44,21 @@ export class Monitor {
         this.networkId = this.rpc.networkId;
         this.backfiller = new Backfiller(this.rpc, this.db);
         this.pools = pools;
+    }
 
+    async backfill(startDate: Date, endDate: Date) {
+        // TODO: optimize, multicall and parallelize
+        await this.backfiller.backfillBlocks(startDate, endDate);
+        for (const pool of this.pools) {
+            await this.backfiller.backfillPoolReserves(pool.address, pool.type, startDate, endDate);
+        }
     }
 
     async start() {
         // before starting the monitor, backfill missing datapoints/blocks
         const startDate = this.params.backfillSince;
         const endDate = new Date();
-
-        // TODO: optimize, multicall and parallelize
-        await this.backfiller.backfillBlocks(startDate, endDate);
-
-        for (const pool of this.pools) {
-            await this.backfiller.backfillPoolReserves(pool.address, pool.type, startDate, endDate);
-        }
+        await this.backfill(startDate, endDate);
 
         if (this.isRunning) return;
         this.isRunning = true;
