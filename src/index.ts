@@ -4,11 +4,11 @@ import { Config } from './types.js';
 import { mainnet } from 'viem/chains';
 import { createPublicClient, http } from 'viem';
 import { createDB } from './db/queries.js';
+import logger from '@/utils/logger.js';
 
 dotenv.config();
 
 async function main() {
-    // Load configuration from environment variables
     const config: Config = {
         rpc: {
             url: process.env.RPC_URL!,
@@ -16,7 +16,8 @@ async function main() {
         pool: {
             address: process.env.POOL_ADDRESS!,
             type: process.env.POOL_TYPE as 'uniswap' | 'curve',
-            pollingInterval: parseInt(process.env.POLLING_INTERVAL || '60000'),
+            pollingInterval: { hours: 1 },
+            backfillPeriod: { days: 7 },
         },
         db: {
             host: process.env.DB_HOST!,
@@ -27,7 +28,6 @@ async function main() {
         },
     };
 
-    // Initialize services
     const client = createPublicClient({
         chain: mainnet,
         transport: http(config.rpc.url),
@@ -45,19 +45,18 @@ async function main() {
         db,
         {
             pollingInterval: config.pool.pollingInterval,
-            backfillSince: new Date(Date.now() - 24 * 60 * 60 * 1000),
+            backfillPeriod: config.pool.backfillPeriod,
         }
     );
 
     // Handle shutdown gracefully
     process.on('SIGINT', async () => {
-        console.log('Shutting down...');
+        logger.info('Shutting down...');
         monitor.stop();
         process.exit(0);
     });
 
-    // Start monitoring
-    console.log(`Starting pool monitor for ${config.pool.address}`);
+    logger.info(`Starting pool monitor for ${config.pool.address}`, { poolAddress: config.pool.address });
     await monitor.start();
 }
 

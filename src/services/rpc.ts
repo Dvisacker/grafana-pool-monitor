@@ -2,6 +2,7 @@ import { PoolReserve } from "@/db/types.js";
 import { getDatedBlocks } from "@/utils/blocks.js";
 import { curvePoolAbi, uniswapV2PoolAbi } from '../generated.js';
 import { PublicClient } from "viem";
+import logger from '@/utils/logger.js';
 
 
 export class Rpc {
@@ -17,6 +18,7 @@ export class Rpc {
     }
 
     async getDatedBlocks(startDate: Date, endDate: Date) {
+        logger.debug(`Getting block dates from ${startDate} to ${endDate}`, { startDate, endDate });
         return getDatedBlocks(this.client, startDate, endDate);
     }
 

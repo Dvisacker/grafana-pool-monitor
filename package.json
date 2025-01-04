@@ -12,7 +12,10 @@
     "generate": "wagmi generate",
     "setup": "docker compose up -d && npm run migrate",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "db:reset": "npx prisma migrate reset",
+    "db:migrate": "npx prisma migrate dev",
+    "db:studio": "npx prisma studio"
   },
   "keywords": [
     "defi",
@@ -34,7 +37,8 @@
     "prisma-kysely": "^1.8.0",
     "ts-node": "^10.9.0",
     "viem": "^2.0.0",
-    "wagmi": "latest"
+    "wagmi": "latest",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

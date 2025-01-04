@@ -1,3 +1,5 @@
+import { Duration } from 'date-fns';
+
 export interface Config {
     rpc: {
         url: string;
@@ -5,7 +7,8 @@ export interface Config {
     pool: {
         address: string;
         type: 'uniswap' | 'curve';
-        pollingInterval: number;
+        pollingInterval: Duration;
+        backfillPeriod: Duration;
     };
     db: {
         host: string;

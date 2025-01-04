@@ -1,5 +1,5 @@
 import { PublicClient } from 'viem';
-import { startOfHour } from 'date-fns';
+import { Duration, startOfHour, sub } from 'date-fns';
 import { findBlockForTimestamp } from '@/utils/blocks.js';
 import { Rpc } from './rpc.js';
 import { Kysely } from 'kysely';
@@ -7,12 +7,22 @@ import { DB, PoolReserve } from '@/db/types.js';
 import { Backfiller } from './backfiller.js';
 import cron from 'node-cron';
 import { queries } from '@/db/queries.js';
+import logger from '@/utils/logger.js';
 
 type PoolType = 'uniswap' | 'curve';
 
 type Pool = {
     address: string;
     type: PoolType;
+}
+
+function durationToMinutes(duration: Duration): number {
+    // Convert to minutes
+    const minutes = (duration.days ?? 0) * 24 * 60 +
+        (duration.hours ?? 0) * 60 +
+        (duration.minutes ?? 0);
+
+    return minutes;
 }
 
 export class Monitor {
@@ -23,21 +33,20 @@ export class Monitor {
     private backfiller: Backfiller;
     private isRunning: boolean = false;
     private rpc: Rpc;
-    private params: {
-        pollingInterval: number,
-        backfillSince: Date,
-    }
+    private pollingInterval: number;
+    private backfillSince: Date;
 
     constructor(
         client: PublicClient,
         pools: Pool[],
         db: Kysely<DB>,
         params: {
-            pollingInterval: number,
-            backfillSince: Date,
+            pollingInterval: Duration,
+            backfillPeriod: Duration,
         }
     ) {
-        this.params = params;
+        this.pollingInterval = durationToMinutes(params.pollingInterval);
+        this.backfillSince = sub(new Date(), params.backfillPeriod);
         this.db = db;
         this.client = client;
         this.rpc = new Rpc(this.client);
@@ -47,23 +56,26 @@ export class Monitor {
     }
 
     async backfill(startDate: Date, endDate: Date) {
+        logger.info(`Backfilling from ${startDate} to ${endDate}`, { startDate, endDate });
+
         // TODO: optimize, multicall and parallelize
         await this.backfiller.backfillBlocks(startDate, endDate);
         for (const pool of this.pools) {
+            logger.info(`Backfilling pool reserves for ${pool.address}`, { poolAddress: pool.address });
             await this.backfiller.backfillPoolReserves(pool.address, pool.type, startDate, endDate);
         }
     }
 
     async start() {
         // before starting the monitor, backfill missing datapoints/blocks
-        const startDate = this.params.backfillSince;
+        const startDate = this.backfillSince;
         const endDate = new Date();
         await this.backfill(startDate, endDate);
 
         if (this.isRunning) return;
         this.isRunning = true;
 
-        cron.schedule(`*/${this.params.pollingInterval} * * * *`, async () => {
+        cron.schedule(`*/${this.pollingInterval} * * * *`, async () => {
             const date = startOfHour(new Date());
             const timestamp = BigInt(Math.floor(date.getTime() / 1000));
             const block = await findBlockForTimestamp(this.client, timestamp, 1n, await this.rpc.getLatestBlock());
