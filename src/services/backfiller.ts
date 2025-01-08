@@ -34,7 +34,7 @@ export class Backfiller {
         }
     }
 
-    async backfillPoolReserves(poolAddress: string, poolType: 'uniswap' | 'curve', startDate: Date, endDate: Date) {
+    async backfillPoolReserves(poolAddress: string, poolType: 'uniswap' | 'curve', startDate: Date, endDate: Date, blockInterval: number) {
         logger.info('Starting pool reserves backfill', {
             poolAddress,
             poolType,
@@ -42,7 +42,9 @@ export class Backfiller {
             endDate
         });
         try {
-            const reserves = await this.rpc.getHistoricalReserves(poolAddress, poolType, startDate, endDate);
+            const blocks = await this.rpc.getBlocksAtIntervals(startDate, endDate, blockInterval);
+            logger.info(`Retrieved ${blocks.length} blocks`);
+            const reserves = await this.rpc.getHistoricalReservesAtBlocks(poolAddress, poolType, blocks);
             logger.debug(`Retrieved ${reserves.length} reserve entries`);
             await queries.upsertPoolReserves(this.db, reserves);
             logger.info('Successfully completed pool reserves backfill', {

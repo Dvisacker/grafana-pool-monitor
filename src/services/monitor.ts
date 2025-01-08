@@ -1,6 +1,6 @@
 import { PublicClient } from 'viem';
 import { Duration, startOfHour, sub } from 'date-fns';
-import { findBlockForTimestamp } from '@/utils/blocks.js';
+import { dateToTimestamp, findBlockForTimestamp } from '@/utils/blocks.js';
 import { Rpc } from './rpc.js';
 import { Kysely } from 'kysely';
 import { DB, PoolReserve } from '@/db/types.js';
@@ -59,10 +59,10 @@ export class Monitor {
         logger.info(`Backfilling from ${startDate} to ${endDate}`, { startDate, endDate });
 
         // TODO: optimize, multicall and parallelize
-        await this.backfiller.backfillBlocks(startDate, endDate);
+        // await this.backfiller.backfillBlocks(startDate, endDate);
         for (const pool of this.pools) {
             logger.info(`Backfilling pool reserves for ${pool.address}`, { poolAddress: pool.address });
-            await this.backfiller.backfillPoolReserves(pool.address, pool.type, startDate, endDate);
+            await this.backfiller.backfillPoolReserves(pool.address, pool.type, startDate, endDate, 1000);
         }
     }
 
@@ -77,8 +77,8 @@ export class Monitor {
 
         cron.schedule(`*/${this.pollingInterval} * * * *`, async () => {
             const date = startOfHour(new Date());
-            const timestamp = BigInt(Math.floor(date.getTime() / 1000));
-            const block = await findBlockForTimestamp(this.client, timestamp, 1n, await this.rpc.getLatestBlock());
+            const timestamp = dateToTimestamp(date);
+            const block = await findBlockForTimestamp(this.client, timestamp);
 
             let reserves: PoolReserve[] = [];
 

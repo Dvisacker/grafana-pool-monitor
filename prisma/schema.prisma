@@ -63,16 +63,31 @@ model PoolReserve {
   @@map("pool_reserves")
 }
 
+// this table stores the blocks that are closest to a given date
 model DatedBlock {
   blockNumber Int      @map("block_number")
   networkId   Int      @map("network_id")
+  /// @kyselyType(number)
+  timestamp   DateTime @map("timestamp") @db.Timestamptz(6)
   /// @kyselyType(Date)
-  date        DateTime @map("date")
+  date        DateTime @map("date") @db.Timestamptz(6)
 
   @@id([blockNumber, networkId])
   @@index([blockNumber])
   @@index([date])
   @@map("dated_blocks")
+}
+
+model Block {
+  blockNumber Int      @map("block_number")
+  networkId   Int      @map("network_id")
+  /// @kyselyType(number)
+  timestamp   DateTime @map("timestamp") @db.Timestamptz(6)
+
+  @@id([blockNumber, networkId])
+  @@index([blockNumber])
+  @@index([timestamp])
+  @@map("blocks")
 }
 
 // model blocks {

@@ -52,7 +52,7 @@ describe('Rpc', () => {
             const startDate = new Date('2024-11-01T00:00:00Z');
             const endDate = new Date('2024-11-01T01:00:00Z');
 
-            const reserves = await rpc.getHistoricalReserves(
+            const reserves = await rpc.getHistoricalReservesAtDatedBlocks(
                 uniswapPoolAddress,
                 'uniswap',
                 startDate,
@@ -71,7 +71,7 @@ describe('Rpc', () => {
             const startDate = new Date('2024-11-01T00:00:00Z');
             const endDate = new Date('2024-11-01T01:00:00Z');
 
-            const reserves = await rpc.getHistoricalReserves(
+            const reserves = await rpc.getHistoricalReservesAtDatedBlocks(
                 curvePoolAddress,
                 'curve',
                 startDate,

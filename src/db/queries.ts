@@ -1,6 +1,6 @@
 import { Kysely, PostgresDialect, sql } from 'kysely';
 import pg from 'pg';
-import type { DB } from './types.js';
+import type { Block, DB } from './types.js';
 import type { PoolReserve } from './types.js';
 import type { DatedBlock } from './types.js';
 import type { Token } from './types.js';
@@ -25,7 +25,9 @@ export const createDB = (config: {
 
 // Query functions
 export const queries = {
-
+    async upsertBlocks(db: Kysely<DB>, data: Block[]) {
+        await db.insertInto('blocks').values(data).onConflict((b) => b.doNothing()).execute();
+    },
     // insert multiple dated blocks, updating existing ones
     async upsertDatedBlocks(db: Kysely<DB>, data: DatedBlock[]) {
         await db.insertInto('dated_blocks').values(data).onConflict((b) => b.doNothing()).execute();

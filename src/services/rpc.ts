@@ -1,5 +1,5 @@
-import { PoolReserve } from "@/db/types.js";
-import { getDatedBlocks } from "@/utils/blocks.js";
+import { DatedBlock, PoolReserve } from "@/db/types.js";
+import { getBlockRange, getBlocksAtIntervals, getDatedBlocks } from "@/utils/blocks.js";
 import { curvePoolAbi, uniswapV2PoolAbi } from '../generated.js';
 import { PublicClient } from "viem";
 import logger from '@/utils/logger.js';
@@ -18,8 +18,16 @@ export class Rpc {
     }
 
     async getDatedBlocks(startDate: Date, endDate: Date) {
-        logger.debug(`Getting block dates from ${startDate} to ${endDate}`, { startDate, endDate });
+        logger.info(`Getting block dates from ${startDate} to ${endDate}`, { startDate, endDate });
         return getDatedBlocks(this.client, startDate, endDate);
+    }
+
+    async getBlockRange(startDate: Date, endDate: Date, blockInterval: number) {
+        return getBlockRange(this.client, startDate, endDate, blockInterval);
+    }
+
+    async getBlocksAtIntervals(startDate: Date, endDate: Date, blockInterval: number) {
+        return getBlocksAtIntervals(this.client, startDate, endDate, blockInterval);
     }
 
     async getBlockNumber() {
@@ -30,7 +38,7 @@ export class Rpc {
         return this.client.getBlockNumber();
     }
 
-    async getHistoricalReserves(poolAddress: string, poolType: 'uniswap' | 'curve', startDate: Date, endDate: Date) {
+    async getHistoricalReservesAtDatedBlocks(poolAddress: string, poolType: 'uniswap' | 'curve', startDate: Date, endDate: Date) {
         const datedBlocks = await this.getDatedBlocks(startDate, endDate);
         let reserves: PoolReserve[] = [];
         switch (poolType) {
@@ -47,6 +55,36 @@ export class Rpc {
                 break;
             case 'curve':
                 reserves = await Promise.all(datedBlocks.map(async ({ date, block_number }) => {
+                    const reserves = await this.getCurveReservesAtBlock(poolAddress, block_number);
+                    return {
+                        time: date,
+                        network_id: this.networkId,
+                        pool_address: poolAddress,
+                        ...reserves,
+                    };
+                }));
+                break;
+        }
+
+        return reserves;
+    }
+
+    async getHistoricalReservesAtBlocks(poolAddress: string, poolType: 'uniswap' | 'curve', blocks: DatedBlock[]) {
+        let reserves: PoolReserve[] = [];
+        switch (poolType) {
+            case 'uniswap':
+                reserves = await Promise.all(blocks.map(async ({ date, block_number }) => {
+                    const reserves = await this.getUniswapReservesAtBlock(poolAddress, block_number);
+                    return {
+                        time: date,
+                        network_id: this.networkId,
+                        pool_address: poolAddress,
+                        ...reserves,
+                    };
+                }));
+                break;
+            case 'curve':
+                reserves = await Promise.all(blocks.map(async ({ date, block_number }) => {
                     const reserves = await this.getCurveReservesAtBlock(poolAddress, block_number);
                     return {
                         time: date,

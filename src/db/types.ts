@@ -4,9 +4,21 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   : ColumnType<T, T | undefined, T>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
+export type Block = {
+    block_number: number;
+    network_id: number;
+    /**
+     * @kyselyType(number)
+     */
+    timestamp: number;
+};
 export type DatedBlock = {
     block_number: number;
     network_id: number;
+    /**
+     * @kyselyType(number)
+     */
+    timestamp: number;
     /**
      * @kyselyType(Date)
      */
@@ -38,6 +50,7 @@ export type Token = {
     decimals: number;
 };
 export type DB = {
+    blocks: Block;
     dated_blocks: DatedBlock;
     pool_reserves: PoolReserve;
     pools: Pool;

@@ -13,6 +13,7 @@
     "setup": "docker compose up -d && npm run migrate",
     "test": "jest",
     "test:watch": "jest --watch",
+    "db:schema": "npx prisma generate",
     "db:reset": "npx prisma migrate reset",
     "db:migrate": "npx prisma migrate dev",
     "db:studio": "npx prisma studio"
